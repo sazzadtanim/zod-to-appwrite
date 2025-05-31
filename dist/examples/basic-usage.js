@@ -1,11 +1,43 @@
 import { Client, Databases } from "node-appwrite";
 import { z } from "zod";
-import { zodToAppwrite, defineCollection, createCollections } from "../src/index.js";
+import { zodToAppwrite, defineCollection, createCollections, } from "../src/index.js";
+import { env } from "../env.js";
+const productSchema = z.object({
+    name: z.string().max(255),
+    slug: z.string().max(255),
+    description: z.string().max(10000),
+    shortDescription: z.string().max(500).optional(),
+    price: z.number(),
+    originalPrice: z.number().optional(),
+    discount: z.number().optional(),
+    image: z.string().url(),
+    images: z.array(z.string().url()).optional(),
+    category: z.string().max(255),
+    subcategory: z.string().max(255).optional(),
+    tags: z.array(z.string().max(50)).optional(),
+    brand: z.string().max(255).optional(),
+    inStock: z.boolean(),
+    stockQuantity: z.number().int().optional(),
+    sku: z.string().max(100).optional(),
+    barcode: z.string().max(100).optional(),
+    rating: z.number(),
+    reviews: z.number().int(),
+    isNew: z.boolean().optional(),
+    isFeatured: z.boolean().optional(),
+    isBestSeller: z.boolean().optional(),
+    metaTitle: z.string().max(255).optional(),
+    metaDescription: z.string().max(500).optional(),
+    metaKeywords: z.array(z.string().max(50)).optional(),
+    createdAt: z.string().max(100),
+    updatedAt: z.string().max(100).optional(),
+});
 const client = new Client()
-    .setEndpoint('https://bangausptyltd.com.au/v1')
-    .setProject('proxima')
-    .setKey('standard_ef94383ec205c3dec1c33ca0a9642828e1d1b75c3cf3496bfbb8a6b249ef253b10957cafb04938478e54524b672c8d3457f43d507a773f798e0b866ad3adce1ed272b2fae81f6a0e411abb72a7b3087f66b30d90ffc05b4c667441ca828675cb4b51e288d673ab39ac600d7ff513009315a9659a6f11669342f7ecf7c4b7594e');
+    .setEndpoint(env.endpoint)
+    .setProject(env.projectId)
+    .setKey(env.key);
 const databases = new Databases(client);
+// Create database first
+await databases.create("ecommerce", "E-commerce Database");
 // Define schemas
 const userSchema = z.object({
     name: z.string().max(100),
@@ -15,29 +47,25 @@ const userSchema = z.object({
     tags: z.array(z.string()).optional(),
     preferences: z.object({
         theme: z.enum(["light", "dark"]),
-        notifications: z.boolean()
-    })
-});
-const productSchema = z.object({
-    title: z.string().max(200),
-    price: z.number().min(0),
-    inStock: z.boolean()
+        notifications: z.boolean(),
+    }),
 });
 // Create single collection
 await zodToAppwrite(userSchema, {
     databases,
-    databaseId: 'ecommerce',
-    collectionId: 'users',
-    collectionName: 'Users',
-    permissions: [{ permission: 'read', role: 'any' }],
-    logLevel: 'verbose'
+    databaseId: "ecommerce",
+    collectionId: "users",
+    collectionName: "Users",
+    permissions: [{ permission: "read", role: "any" }],
+    logLevel: "verbose",
 });
 // Use collection definition
 const productCollection = defineCollection(productSchema, {
-    databaseId: 'ecommerce',
-    collectionId: 'products',
-    collectionName: 'Products',
-    permissions: [{ permission: 'read', role: 'any' }]
+    databaseId: "ecommerce",
+    collectionId: "products",
+    collectionName: "Products",
+    permissions: [{ permission: "read", role: "any" }],
+    logLevel: "verbose",
 });
 await productCollection.create(databases);
 // Batch creation
@@ -45,17 +73,21 @@ await createCollections(databases, [
     {
         schema: userSchema,
         options: {
-            databaseId: 'ecommerce',
-            collectionId: 'users',
-            collectionName: 'Users'
-        }
+            databaseId: "ecommerce",
+            collectionId: "users",
+            collectionName: "Users",
+            permissions: [{ permission: "read", role: "any" }],
+            logLevel: "verbose",
+        },
     },
     {
         schema: productSchema,
         options: {
-            databaseId: 'ecommerce',
-            collectionId: 'products',
-            collectionName: 'Products'
-        }
-    }
+            databaseId: "ecommerce",
+            collectionId: "products",
+            collectionName: "Products",
+            permissions: [{ permission: "read", role: "any" }],
+            logLevel: "verbose",
+        },
+    },
 ]);

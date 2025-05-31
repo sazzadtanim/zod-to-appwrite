@@ -30,11 +30,11 @@
     "collection",
     "validation"
   ],
-  "author": "Your Name <your@email.com>",
+  "author": "Sazzad Tanim <sazzad.tanim@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/zod-to-appwrite"
+    "url": "https://github.com/sazzadtanim/zod-to-appwrite"
   },
   "dependencies": {
     "dotenv": "^16.5.0"

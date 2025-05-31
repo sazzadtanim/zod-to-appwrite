@@ -13,7 +13,7 @@ const ZOD_TYPES = {
     DEFAULT: "ZodDefault",
 };
 export async function zodToAppwrite(schema, options) {
-    const { databases, databaseId, collectionId, collectionName, permissions = [{ permission: "read", role: "any" }], logLevel = "info", enumSizeLimit = 100, stringDefaultSize = 255, skipExisting = true, } = options;
+    const { databases, databaseId, collectionId, collectionName, permissions = [{ permission: "read", role: "any" }], logLevel = "verbose", enumSizeLimit = 100, stringDefaultSize = 255, skipExisting = true, } = options;
     // Logging utility
     const log = (message, level = "info") => {
         if (logLevel === "silent")
@@ -22,6 +22,7 @@ export async function zodToAppwrite(schema, options) {
             console[level](`[zodToAppwrite] ${message}`);
         }
     };
+    log(`Starting collection creation for '${collectionName}' with ${Object.keys(schema.shape).length} fields`, "info");
     // Create collection
     try {
         await databases.createCollection(databaseId, collectionId, collectionName, permissions?.map(p => typeof p === 'string' ? p : `${p.permission}("${p.role}")`));
@@ -44,6 +45,7 @@ export async function zodToAppwrite(schema, options) {
     // Process each field in the schema
     for (const [key, field] of Object.entries(shape)) {
         try {
+            log(`Processing field '${key}'...`, "info");
             const attributeInfo = analyzeZodField(field);
             const { type: baseType, isOptional, isNullable, metadata, } = attributeInfo;
             const required = !(isOptional || isNullable);
@@ -213,9 +215,15 @@ async function createAppwriteAttribute(databases, databaseId, collectionId, key,
             const itemType = metadata.type;
             const itemTypeName = itemType._def.typeName;
             if (itemTypeName === ZOD_TYPES.STRING) {
-                await databases.createStringAttribute(databaseId, collectionId, key, stringDefaultSize, required, "true");
+                const checks = itemType._def.checks || [];
+                const maxCheck = checks.find((c) => c.kind === "max");
+                const size = maxCheck?.value || stringDefaultSize;
+                await databases.createStringAttribute(databaseId, collectionId, key, size, required, undefined, // default value (optional)
+                true);
             }
             else {
+                // For non-string arrays, store as JSON string (not as array)
+                log(`Array '${key}' contains non-string items, storing as JSON string`, "warn");
                 await databases.createStringAttribute(databaseId, collectionId, key, stringDefaultSize, required);
             }
             break;
