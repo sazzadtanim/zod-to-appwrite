@@ -1,3 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.zodToAppwrite = zodToAppwrite;
+exports.defineCollection = defineCollection;
+exports.validateForAppwrite = validateForAppwrite;
+exports.createCollections = createCollections;
 const ZOD_TYPES = {
     STRING: "ZodString",
     NUMBER: "ZodNumber",
@@ -12,7 +18,7 @@ const ZOD_TYPES = {
     NULLABLE: "ZodNullable",
     DEFAULT: "ZodDefault",
 };
-export async function zodToAppwrite(schema, options) {
+async function zodToAppwrite(schema, options) {
     const { databases, databaseId, collectionId, collectionName, permissions = [{ permission: "read", role: "any" }], logLevel = "verbose", enumSizeLimit = 100, stringDefaultSize = 255, skipExisting = true, } = options;
     // Logging utility
     const log = (message, level = "info") => {
@@ -259,7 +265,7 @@ async function createAppwriteAttribute(databases, databaseId, collectionId, key,
     }
 }
 // Collection definition utility
-export function defineCollection(schema, options) {
+function defineCollection(schema, options) {
     return {
         schema,
         create: (databases) => zodToAppwrite(schema, { databases, ...options }),
@@ -267,11 +273,11 @@ export function defineCollection(schema, options) {
     };
 }
 // Data validation helper
-export function validateForAppwrite(schema, data) {
+function validateForAppwrite(schema, data) {
     return schema.parse(data);
 }
 // Batch collection creator
-export async function createCollections(databases, collections) {
+async function createCollections(databases, collections) {
     const results = [];
     for (const { schema, options } of collections) {
         try {
