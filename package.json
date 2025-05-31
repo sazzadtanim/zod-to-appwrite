@@ -1,6 +1,6 @@
 {
   "name": "zod-to-appwrite",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Generate Appwrite database collections from Zod schemas",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "tsc && tsc -p tsconfig.cjs.json",
-    "test": "jest",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --config jest.config.js",
     "prepublish": "npm run build",
     "example": "NODE_OPTIONS='--loader ts-node/esm' node examples/basic-usage.ts"
   },
@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
+    "dotenv": "^16.5.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.3.4",
     "ts-node": "^10.9.2",
@@ -42,8 +43,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/sazzadtanim/zod-to-appwrite"
-  },
-  "dependencies": {
-    "dotenv": "^16.5.0"
   }
 }

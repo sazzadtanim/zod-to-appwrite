@@ -1,8 +1,15 @@
-
 src/
 test/
+examples/
+.github/
+coverage/
 tsconfig.json
+tsconfig.cjs.json
+jest.config.js
 .gitignore
+.npmignore
 node_modules/
 *.test.*
 *.log
+.env*
+*.tsbuildinfo

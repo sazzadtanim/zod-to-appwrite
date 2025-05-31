@@ -108,6 +108,11 @@ export async function zodToAppwrite(
       } = attributeInfo;
       const required = !(isOptional || isNullable);
 
+      // Throw for unsupported types
+      if (baseType === "ZodAny" || baseType === "ZodUnknown") {
+        throw new Error(`Unsupported type '${baseType}' for field '${key}' cannot be stored in Appwrite`);
+      }
+
       // Skip existing attributes if enabled
       if (skipExisting) {
         try {
