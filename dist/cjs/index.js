@@ -55,6 +55,10 @@ async function zodToAppwrite(schema, options) {
             const attributeInfo = analyzeZodField(field);
             const { type: baseType, isOptional, isNullable, metadata, } = attributeInfo;
             const required = !(isOptional || isNullable);
+            // Throw for unsupported types
+            if (baseType === "ZodAny" || baseType === "ZodUnknown") {
+                throw new Error(`Unsupported type '${baseType}' for field '${key}' cannot be stored in Appwrite`);
+            }
             // Skip existing attributes if enabled
             if (skipExisting) {
                 try {
